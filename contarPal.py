@@ -1,38 +1,40 @@
 #---------------------------- Imports ---------------------------------
 from time import *
 from re import *
-import stem
+from nltk.stem.snowball import SnowballStemmer
 import os
 #----------------------------------------------------------------------
-"""
-Ejemplo de uso de diccionario (estructura de datos) para contar palabras en un archivo
-"""
+stemmer = SnowballStemmer("spanish") # seleccionar el idioma del stemmer
 
-'''
-Leeremos un archivo de texto para hacer un resumen de la ocurrencia de las palabras
-(cuántas veces aparece cada palabra en el texto). También agruparemos las palabras
-según su cantidad de letras (longitud)
-'''
+
 inicio = time() # iniciar a contar segundos desde que se inician los algoritmos
-#lista = os.listdir("C:\\Users\\Luis Mora\\Desktop\\pruebasRIT\\spanish_billion_words\\sbw_00")
-os.chdir("C:\\Users\\Luis Mora\\Desktop\\pruebasRIT\\spanish_billion_words\\sbw_00")
+lista = os.listdir("C:\\Users\\Luis Mora\\Desktop\\nltk-3.2.5\\spanish_billion_words\\sbw_00")
+os.chdir("C:\\Users\\Luis Mora\\Desktop\\nltk-3.2.5\\spanish_billion_words\\sbw_00")
 #print(lista)
-for i in lista:
+for nombrearchivo in lista: #Recorre cada archivo que se encuentra en el directorio
     # Abrir archivo para lectura
-    nombrearchivo = i
     with open(nombrearchivo,encoding="utf8") as archivo:
-        palabrass = {} # diccionario para guardar ocurrencia de palabras
+        diccionarioPalabras = {} # diccionario para guardar ocurrencia de palabras
         terminos = {}
-        grupo = {} # diccionario para agrupar palabras según su longitud
+        frecuenciaTerminos = {} # diccionario para agrupar palabras según su longitud
         for linea in archivo:
             palabras = linea.split() # separar línea en palabras, por espacio en blanco
             for palabra in palabras:
                 palabra = palabra.lower().strip(".,\n\t") # cambiar a minúscula y quitar puntuación
-                #print(palabra)
-                if palabra not in palabrass:
-                    palabrass[palabra] = 1
+                if palabra not in diccionarioPalabras:
+                    diccionarioPalabras[palabra] = 1
                 else:
-                    palabrass[palabra] += 1
+                    diccionarioPalabras[palabra] += 1
+            #..............Hasta aqui 9 segundos...
+            for termino in palabras:
+                termino = stemmer.stem(termino)
+            #print(palabra)
+            if termino not in terminos:
+                terminos[termino] = 1
+            else:
+                terminos[termino] += 1
+
+
                 # Agrupar según longitud
                 #longitud = len(palabra)
                 #if longitud not in grupo:
@@ -42,15 +44,24 @@ for i in lista:
 
     # Cerrar archivo al finalizar
     archivo.close()
-
+    print("archivo procesado: ", str(nombrearchivo) )
+os.chdir("C:\\Users\\Luis Mora\\Desktop\\nltk-3.2.5")
+dos = open("hmm.txt",'w+',encoding = "utf8")
+for llave in diccionarioPalabras:
+    dos.write(str(llave))
+    dos.write(str(" : "))
+    dos.write(str(diccionarioPalabras[llave]))
+    dos.write('\n')
+dos.close()
 # Mostrar información
-print('Total de palabras distintas:', len(palabrass))
+print('Total de palabras distintas:', len(diccionarioPalabras))
 
-print('Las diez palabras más comunes son:')
-for palabra in sorted( palabrass, key = palabrass.get, reverse=True )[:10]:
-    print('\t',palabra,':',palabrass[palabra],'ocurrencias')
+#print('Las diez palabras más comunes son:')
+#for palabra in sorted( diccionarioPalabras, key = diccionarioPalabras.get, reverse=True )[:10]:
+ #   print('\t',palabra,':',diccionarioPalabras[palabra],'ocurrencias')
+
 final = time()
 total = final - inicio
 print("tiempo total: ",total, " segundos")
-#for llave in palabrass:
- #   print (llave, ": ", palabrass[llave])
+#for llave in diccionarioPalabras:
+ #   print (llave, ": ", diccionarioPalabras[llave])
